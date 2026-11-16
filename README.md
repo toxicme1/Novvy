@@ -98,21 +98,50 @@ a real `adb` binary.
 
 Endpoints (backend): `GET /download`, `GET /api/adb/devices`, `POST /api/adb/install`.
 
-## Android app
+## Android app (Kotlin + Jetpack Compose, Material 3)
 
-The app is a thin client: enter a backend URL and a goal, tap **Run workspace**.
+Novvy is a full Android app — a **coordinator-led multi-agent workspace** with a
+premium Material 3 UI (light + dark). It is not a thin client; the agent engine
+runs on-device and is provider-agnostic.
 
-- Emulator → use `http://10.0.2.2:8000` (maps to the host machine).
-- Physical device → use your machine's LAN IP, e.g. `http://192.168.1.20:8000`.
+**Screens:** Onboarding, Home (prompt + quick actions), Live Task (animated agent
+status cards), Agent Detail, Result, Files, Inbox, Settings.
+
+**Agent team:** Coordinator, Planner, Research, Analysis, Budget, Hotel,
+Itinerary, Writer, Document, Tasks, Reviewer, Gmail, Drive. Sensitive actions
+(Drive save, Gmail send) require explicit approval via an approval dialog.
+
+**Architecture (clean):**
+```
+com.novvy.app
+├── domain/model      # agents, tasks, providers, approvals
+├── domain/provider   # AIProvider + Mock + OpenAI-compatible (secure keys)
+├── domain/agent      # CoordinatorEngine (live orchestration, approval gates)
+├── data              # DataStore settings + EncryptedSharedPreferences keys
+├── google            # GoogleCredentials + Gmail/Drive/GAuth scaffolds
+└── ui                # Compose theme, components, screens, NovvyApp nav
+```
+
+**Google credentials** — do NOT commit real keys. Fill them in
+`android/local.properties` (git-ignored):
+```
+GOOGLE_WEB_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+GOOGLE_API_KEY=your-restricted-api-key
+```
+These flow through `BuildConfig` into
+`android/app/src/main/java/com/novvy/app/google/GoogleCredentials.kt`.
+See `android/local.properties.example`.
 
 ### Build the APK
 
 ```bash
-./scripts/build_apk.sh
-# output: dist/novvy.apk
+./scripts/build_apk.sh          # local build -> dist/novvy.apk
 ```
 
-The debug APK is already committed at [`dist/novvy.apk`](dist/novvy.apk).
+Or let **GitHub Actions** build it: push to `main` (or run the
+**Build Novvy APK** workflow) and download the `novvy-apk` artifact.
+
+The debug APK is committed at [`dist/novvy.apk`](dist/novvy.apk).
 
 ### Install
 
@@ -122,15 +151,15 @@ adb install -r dist/novvy.apk
 
 ## Architecture
 
-1. **Plan** — `OrchestratorAgent` splits the goal into independent sub-tasks.
-2. **Assign** — one `WorkerAgent` per sub-task runs the reasoning loop.
-3. **Tool use** — agents call registered tools (e.g. `calculator`) in a loop
-   until they produce a final answer.
-4. **Reduce** — the orchestrator synthesizes worker outputs into one answer.
+1. **Plan** — the `CoordinatorEngine` splits the goal into specialist agents.
+2. **Assign** — each agent runs with live status (queued → running → complete),
+   animating through the task.
+3. **Approval gates** — Gmail/Drive steps pause until the user approves.
+4. **Result** — the coordinator synthesizes a single result you can save/share.
 
-Providers are pluggable: each translates the normalized message/tool format to
-its upstream API and returns a normalized response, so switching providers never
-touches the agent logic.
+Providers are pluggable (`AIProvider`): the offline `MockProvider` keeps the demo
+fully functional; `OpenAICompatibleProvider` covers OpenAI, Groq, OpenRouter and
+Ollama. API keys are stored encrypted with Android Keystore.
 
 ## License
 

@@ -1,0 +1,9 @@
+# Copy this file to local.properties and fill in your Google Cloud OAuth values.
+# local.properties is git-ignored and is NEVER shipped inside the APK.
+# You only need these for Google Drive / Gmail sign-in.
+
+# OAuth 2.0 Web client ID (Google Cloud Console > APIs & Services > Credentials)
+GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+
+# (Optional) API key for Gmail/Drive REST access, restricted to those APIs
+GOOGLE_API_KEY=your-restricted-api-key
