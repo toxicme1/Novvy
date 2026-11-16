@@ -662,13 +662,35 @@ enum class NovvyTab(val label: String, val icon: ImageVector) {
 }
 
 @Composable
-fun NovvyBottomNavigation(selected: NovvyTab, onSelect: (NovvyTab) -> Unit) {
+fun NovvyBottomNavigation(
+    selected: NovvyTab,
+    onSelect: (NovvyTab) -> Unit,
+    inboxUnread: Int = 0,
+    tasksApprovals: Int = 0,
+) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         NovvyTab.entries.forEach { tab ->
+            val count = when (tab) {
+                NovvyTab.INBOX -> inboxUnread
+                NovvyTab.TASKS -> tasksApprovals
+                else -> 0
+            }
             NavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelect(tab) },
-                icon = { Icon(tab.icon, contentDescription = tab.label) },
+                icon = {
+                    if (count > 0) {
+                        androidx.compose.material3.BadgedBox(
+                            badge = {
+                                androidx.compose.material3.Badge {
+                                    Text("$count", style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
+                        ) { Icon(tab.icon, contentDescription = tab.label) }
+                    } else {
+                        Icon(tab.icon, contentDescription = tab.label)
+                    }
+                },
                 label = { Text(tab.label) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,

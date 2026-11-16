@@ -109,6 +109,10 @@ fun HomeScreen(
             }
         }
 
+        if (!state.settings.gmailConnected || !state.settings.driveConnected) {
+            item { ConnectWorkspaceCard(onConnect = onOpenSettings) }
+        }
+
         item {
             NovvyPromptCard(
                 onSend = { goal -> vm.submitGoal(goal); onOpenTask(null) },
@@ -141,6 +145,26 @@ fun HomeScreen(
             item { EmptyTasks() }
         } else {
             items(recent, key = { it.id }) { task -> TaskRow(task) { onOpenTask(task.id) } }
+        }
+    }
+}
+
+@Composable
+private fun ConnectWorkspaceCard(onConnect: () -> Unit) {
+    Card(
+        onClick = onConnect,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(Modifier.padding(18.dp)) {
+            Text("Connect your workspace", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "Save documents to Drive and prepare emails with Gmail.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+            )
         }
     }
 }

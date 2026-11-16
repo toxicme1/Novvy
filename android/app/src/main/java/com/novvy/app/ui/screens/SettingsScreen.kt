@@ -48,6 +48,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import com.novvy.app.ui.theme.DarkBg
 import com.novvy.app.ui.theme.DarkSurface
 import com.novvy.app.ui.theme.LightBg
@@ -71,20 +72,13 @@ fun SettingsScreen(vm: NovvyViewModel) {
     ) {
         Text("Settings", style = MaterialTheme.typography.headlineSmall)
 
-        // Profile
-        SectionTitle("Profile")
-        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
-            Column(Modifier.padding(14.dp)) {
-                OutlinedTextField(
-                    value = state.settings.displayName,
-                    onValueChange = { vm.setDisplayName(it) },
-                    label = { Text("Your name") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                )
-            }
-        }
+        // Profile hero
+        ProfileHero(
+            name = state.settings.displayName,
+            gmailConnected = state.settings.gmailConnected,
+            driveConnected = state.settings.driveConnected,
+            onNameChange = { vm.setDisplayName(it) },
+        )
 
         // Appearance
         SectionTitle("Appearance")
@@ -131,6 +125,19 @@ fun SettingsScreen(vm: NovvyViewModel) {
                 else Toast.makeText(context, "Add GOOGLE_WEB_CLIENT_ID to android/local.properties first.", Toast.LENGTH_LONG).show()
             },
         )
+
+        SectionTitle("Privacy & approvals")
+        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+            Column {
+                PrivacyRow("Ask before sending email", "Never send without your approval.", true)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)))
+                PrivacyRow("Ask before saving to Drive", "Review the file name and folder first.", true)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)))
+                PrivacyRow("Ask before replacing files", "Prevent accidental overwrites.", true)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)))
+                PrivacyRow("Private mode", "Prefer on-device processing for sensitive work.", false)
+            }
+        }
 
         SectionTitle("About")
         Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
@@ -334,5 +341,85 @@ private fun AccountRow(
             }
             Switch(checked = connected, onCheckedChange = onToggle)
         }
+    }
+}
+@Composable
+private fun ProfileHero(
+    name: String,
+    gmailConnected: Boolean,
+    driveConnected: Boolean,
+    onNameChange: (String) -> Unit,
+) {
+    Card(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    Modifier.size(56.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        name.firstOrNull()?.uppercase() ?: "N",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        name.ifBlank { "Your name" },
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        StatusDot("Gmail", gmailConnected)
+                        StatusDot("Drive", driveConnected)
+                    }
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            OutlinedTextField(
+                value = name,
+                onValueChange = onNameChange,
+                label = { Text("Edit name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatusDot(label: String, connected: Boolean) {
+    val color = if (connected) Color(0xFF22C55E) else MaterialTheme.colorScheme.onSurfaceVariant
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(8.dp).clip(androidx.compose.foundation.shape.CircleShape).background(color))
+        Spacer(Modifier.width(5.dp))
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+    }
+}
+
+@Composable
+private fun PrivacyRow(title: String, subtitle: String, default: Boolean) {
+    var on by remember { mutableStateOf(default) }
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(checked = on, onCheckedChange = { on = it })
     }
 }
