@@ -78,6 +78,23 @@
   }
   .foot { margin-top: 24px; font-size: 12.5px; color: #6a6a82; text-align: center; }
   .foot a { color: #7c8cff; }
+  .why { margin: 30px 0 6px; }
+  .why h2 { font-size: 18px; margin: 0 0 4px; letter-spacing: -.2px; }
+  .why .sub { color: #8a8aa3; font-size: 13.5px; margin: 0 0 18px; }
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .feature {
+    background: #1c1c26; border: 1px solid #2c2c3d; border-radius: 12px; padding: 16px;
+  }
+  .feature .ico {
+    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+    background: linear-gradient(135deg, rgba(124,140,255,.22), rgba(176,107,255,.22));
+    font-size: 17px; margin-bottom: 10px;
+  }
+  .feature h3 { margin: 0 0 6px; font-size: 14.5px; }
+  .feature p { margin: 0; font-size: 12.8px; line-height: 1.5; color: #9a9ab0; }
+  @media (max-width: 520px) { .features { grid-template-columns: 1fr; } }
+  .cta-row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .cta-row .chip { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -101,6 +118,48 @@
       Download Novvy APK
       <span class="small">novvy.apk · 799,620 bytes</span>
     </a>
+
+    <div class="why">
+      <h2>Why install Novvy?</h2>
+      <p class="sub">A tiny app that turns your phone into a multi-agent AI workspace — no bloat, no lock-in.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="ico">🧠</div>
+          <h3>Multi-agent by design</h3>
+          <p>An orchestrator breaks your goal into sub-tasks and worker agents solve them with tools — then it all comes back as one answer.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🔌</div>
+          <h3>Bring your own model</h3>
+          <p>Works with Claude, OpenAI, a local Ollama, or the built-in offline demo. Switch providers anytime — you're never locked in.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🛠️</div>
+          <h3>Agents that use tools</h3>
+          <p>Real reasoning loops call tools (calculator, text stats, and more you can add) instead of just chatting.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🔒</div>
+          <h3>Private &amp; self-hostable</h3>
+          <p>Run the backend on your own machine or server. Your data and prompts stay yours — nothing is forced through a third party.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🪶</div>
+          <h3>Lightweight &amp; fast</h3>
+          <p>A ~780 KB app with a clean, no-nonsense UI. No ads, no accounts, no subscriptions.</p>
+        </div>
+        <div class="feature">
+          <div class="ico">🌍</div>
+          <h3>Open source</h3>
+          <p>MIT-licensed and fully on GitHub. Inspect it, fork it, extend it, or self-host it.</p>
+        </div>
+      </div>
+      <div class="cta-row">
+        <a class="chip" href="https://github.com/toxicme1/Novvy">⭐ Star on GitHub</a>
+        <span class="chip">MIT licensed</span>
+        <span class="chip">No ads · No tracking</span>
+      </div>
+    </div>
 
     <div class="divider"></div>
 
