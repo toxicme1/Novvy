@@ -161,6 +161,13 @@ Providers are pluggable (`AIProvider`): the offline `MockProvider` keeps the dem
 fully functional; `OpenAICompatibleProvider` covers OpenAI, Groq, OpenRouter and
 Ollama. API keys are stored encrypted with Android Keystore.
 
+## Design docs
+
+- [`docs/DESIGN.md`](docs/DESIGN.md) — colour system (hex + where each is used),
+  typography, shapes, spacing, components, animations.
+- [`docs/SCREENS.md`](docs/SCREENS.md) — per-screen layout breakdown and the file
+  to edit for each change.
+
 ## License
 
 MIT
