@@ -79,6 +79,20 @@ curl -X POST http://localhost:8000/api/run \
   -d '{"goal":"Plan a launch; calculate 7*6"}'
 ```
 
+## Web interface (download + install to a device)
+
+Open the backend root URL (`http://localhost:8000/`) for a web UI with:
+
+- **Download & install to my phone** — runs `adb devices` on the machine running
+  Novvy, lists connected devices, and installs `dist/novvy.apk` onto the one you pick.
+- **Just download the APK file** — downloads `novvy.apk` directly.
+
+> ADB installs only work for devices plugged into the machine running the
+> backend (USB debugging enabled). A cloud-hosted backend sees no devices, so
+> run it locally to use the install button.
+
+Endpoints: `GET /download`, `GET /api/adb/devices`, `POST /api/adb/install`.
+
 ## Android app
 
 The app is a thin client: enter a backend URL and a goal, tap **Run workspace**.
