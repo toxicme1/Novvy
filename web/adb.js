@@ -5146,7 +5146,7 @@ var NovvyAdb = (() => {
       report("Pushing " + blob.size + " bytes to device...");
       const sync = await adb.sync();
       try {
-        await sync.push({ file: blob.stream(), filename: REMOTE_PATH });
+        await sync.write({ file: blob.stream(), filename: REMOTE_PATH });
       } finally {
         try {
           await sync.dispose();
