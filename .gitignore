@@ -20,3 +20,6 @@ android/captures/
 *.swp
 
 # NOTE: dist/ is intentionally tracked (committed APK)
+# Vercel
+.vercel/
+web/.vercel/
