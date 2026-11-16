@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,13 +43,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.novvy.app.domain.model.AgentState
 import com.novvy.app.domain.model.AgentTask
 import com.novvy.app.domain.model.TaskStatus
 import com.novvy.app.ui.NovvyViewModel
 import com.novvy.app.ui.components.AgentStatusCard
+import com.novvy.app.ui.components.ApprovalSheet
 import com.novvy.app.ui.components.CoordinatorMessage
 import com.novvy.app.ui.components.EmptyState
 import com.novvy.app.ui.components.GradientProgressBar
@@ -68,71 +69,66 @@ fun LiveTaskScreen(
     val state by vm.ui.collectAsState()
     val task = state.task
     val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
 
-    Column(Modifier.fillMaxSize()) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, "Back") }
-            Text("Live task", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-            if (task != null && (task.status == TaskStatus.RUNNING || task.status == TaskStatus.WAITING_APPROVAL)) {
-                IconButton(onClick = { vm.togglePause() }) {
-                    Icon(if (state.isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (state.isPaused) "Resume" else "Pause")
-                }
-                IconButton(onClick = { vm.stopTask() }) {
-                    Icon(Icons.Filled.Stop, "Stop", tint = MaterialTheme.colorScheme.error)
-                }
-            }
-        }
+    val waiting = task?.status == TaskStatus.WAITING_APPROVAL
+    val completed = task?.status == TaskStatus.COMPLETED
+    LaunchedEffect(waiting) { if (waiting) haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
+    LaunchedEffect(completed) { if (completed) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
 
-        if (task == null) {
-            EmptyState(
-                title = "No active task",
-                subtitle = "Give Novvy a goal from the Home screen.",
-            )
-            return@Column
-        }
-
-        LazyColumn(
-            Modifier.weight(1f).padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
-        ) {
-            item { TaskHero(task) }
-            itemsIndexed(task.agents) { index, agent ->
-                StaggeredAgentCard(agent, index) { onOpenAgent(agent.id) }
-            }
-            item { CoordinatorMessage(task.coordinatorMessage) }
-        }
-
-        if (task.status == TaskStatus.COMPLETED) {
-            StickyActionBar(
-                onDrive = { toast(context, "Demo: saving to Drive") },
-                onEmail = onViewResult,
-                onShare = { toast(context, "Demo: sharing") },
-                onOpen = onViewResult,
-            )
-        }
-    }
-
-    val approval = task?.approval
-    if (approval != null) {
-        AlertDialog(
-            onDismissRequest = { vm.cancelApproval() },
-            title = { Text(approval.title) },
-            text = {
-                Column {
-                    Text(approval.summary, style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.height(10.dp))
-                    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.fillMaxWidth()) {
-                        Text(approval.detail, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(14.dp))
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = onBack) { Icon(Icons.Filled.ArrowBack, "Back") }
+                Text("Live task", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                if (task != null && (task.status == TaskStatus.RUNNING || task.status == TaskStatus.WAITING_APPROVAL)) {
+                    IconButton(onClick = { vm.togglePause() }) {
+                        Icon(if (state.isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause, if (state.isPaused) "Resume" else "Pause")
+                    }
+                    IconButton(onClick = { vm.stopTask() }) {
+                        Icon(Icons.Filled.Stop, "Stop", tint = MaterialTheme.colorScheme.error)
                     }
                 }
-            },
-            confirmButton = { TextButton(onClick = { vm.approve() }) { Text("Approve") } },
-            dismissButton = { TextButton(onClick = { vm.cancelApproval() }) { Text("Cancel") } },
-        )
+            }
+
+            if (task == null) {
+                EmptyState(title = "No active task", subtitle = "Give Novvy a goal from the Home screen.")
+                return@Column
+            }
+
+            LazyColumn(
+                Modifier.weight(1f).padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
+            ) {
+                item { TaskHero(task) }
+                itemsIndexed(task.agents) { index, agent ->
+                    StaggeredAgentCard(agent, index) { onOpenAgent(agent.id) }
+                }
+                item { CoordinatorMessage(task.coordinatorMessage) }
+            }
+
+            if (task.status == TaskStatus.COMPLETED) {
+                StickyActionBar(
+                    onDrive = { toast(context, "Demo: saving to Drive") },
+                    onEmail = onViewResult,
+                    onShare = { toast(context, "Demo: sharing") },
+                    onOpen = onViewResult,
+                )
+            }
+        }
+
+        val approval = task?.approval
+        if (approval != null) {
+            ApprovalSheet(
+                approval = approval,
+                onApprove = { vm.approve() },
+                onCancel = { vm.cancelApproval() },
+            )
+        }
     }
 }
 
@@ -171,18 +167,14 @@ private fun StickyActionBar(
     onShare: () -> Unit,
     onOpen: () -> Unit,
 ) {
-    Surface(
-        tonalElevation = 3.dp,
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    Surface(tonalElevation = 3.dp, color = MaterialTheme.colorScheme.surface, modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(onClick = onOpen, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) {
-                Icon(Icons.Filled.Cloud, null, modifier = Modifier.height(18.dp).width(18.dp))
+                Icon(Icons.Filled.Cloud, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text("View result")
             }

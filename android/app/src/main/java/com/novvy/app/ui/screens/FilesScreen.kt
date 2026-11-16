@@ -4,15 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,19 +27,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.novvy.app.domain.model.DocumentFormat
 import com.novvy.app.domain.model.DriveFile
 import com.novvy.app.ui.NovvyViewModel
 import com.novvy.app.ui.components.EmptyState
+import com.novvy.app.ui.components.LoadingSkeletonCards
+import com.novvy.app.ui.components.PullToRefreshColumn
 import com.novvy.app.ui.theme.GradientVioletCyan
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private data class FileFilter(val label: String, val format: DocumentFormat?)
 
@@ -50,45 +51,53 @@ private val fileFilters = listOf(
     FileFilter("All", null),
     FileFilter("DOCX", DocumentFormat.DOCX),
     FileFilter("PDF", DocumentFormat.PDF),
-    FileFilter("Sheets", DocumentFormat.MARKDOWN),
-    FileFilter("Drive", DocumentFormat.TXT),
+    FileFilter("Notes", DocumentFormat.MARKDOWN),
+    FileFilter("TXT", DocumentFormat.TXT),
 )
 
 @Composable
 fun FilesScreen(vm: NovvyViewModel) {
     val state by vm.ui.collectAsState()
     var filter by remember { mutableStateOf<FileFilter?>(null) }
+    var refreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val files = state.files.filter { filter == null || it.format == filter?.format }
 
-    LazyColumn(
-        Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
+    PullToRefreshColumn(
+        modifier = Modifier,
+        isRefreshing = refreshing,
+        onRefresh = {
+            refreshing = true
+            scope.launch { delay(900); refreshing = false }
+        },
     ) {
-        item {
-            Column {
-                Text("Files & documents", style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    "Documents created and saved by Novvy.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        item { FileFilterRow(filter) { filter = it } }
-        item { StorageCard(count = state.files.size, connected = state.settings.driveConnected) }
+        Column(
+            Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text("Files & documents", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                "Documents created and saved by Novvy.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FileFilterRow(filter) { filter = it }
+            StorageCard(count = state.files.size, connected = state.settings.driveConnected)
 
-        if (files.isEmpty()) {
-            item {
+            if (refreshing) {
+                LoadingSkeletonCards(count = 2)
+            } else if (files.isEmpty()) {
                 EmptyState(
                     title = "No documents yet",
                     subtitle = "Novvy can create and save DOCX, PDF and other files to Drive.",
                     actionLabel = "Create a document",
                     onAction = { vm.submitGoal("Create a professional proposal document") },
                 )
+            } else {
+                files.forEach { file ->
+                    FileCard(file)
+                }
             }
-        } else {
-            items(files, key = { it.name + it.folder }) { file -> FileCard(file) }
         }
     }
 }

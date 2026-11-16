@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -59,13 +60,17 @@ import com.novvy.app.domain.model.ProviderConfig
 import com.novvy.app.google.GoogleCredentials
 import com.novvy.app.ui.NovvyViewModel
 import com.novvy.app.ui.components.SectionTitle
+import com.novvy.app.ui.components.ModelSelectorSheet
+import com.novvy.app.ui.components.ProviderModels
 
 @Composable
 fun SettingsScreen(vm: NovvyViewModel) {
     val state by vm.ui.collectAsState()
     val context = LocalContext.current
     var editing by remember { mutableStateOf<ProviderConfig?>(null) }
+    var modelSheetFor by remember { mutableStateOf<ProviderConfig?>(null) }
 
+    Box(Modifier.fillMaxSize()) {
     Column(
         Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -96,6 +101,7 @@ fun SettingsScreen(vm: NovvyViewModel) {
                 onEdit = { editing = provider },
                 onToggle = { vm.updateProvider(provider.copy(enabled = it)) },
                 onSetDefault = { vm.setDefaultProvider(provider.kind) },
+                onModels = { modelSheetFor = provider },
             )
         }
         OutlinedButton(
@@ -162,6 +168,21 @@ fun SettingsScreen(vm: NovvyViewModel) {
             },
         )
     }
+
+    val ms = modelSheetFor
+    if (ms != null) {
+        ModelSelectorSheet(
+            providerLabel = ms.kind.displayName,
+            current = ms.model,
+            models = ProviderModels.forKind(ms.kind),
+            onDismiss = { modelSheetFor = null },
+            onSelect = { model ->
+                vm.updateProvider(ms.copy(model = model))
+                modelSheetFor = null
+            },
+        )
+    }
+    }
 }
 
 @Composable
@@ -216,6 +237,7 @@ private fun ProviderCard(
     onEdit: () -> Unit,
     onToggle: (Boolean) -> Unit,
     onSetDefault: () -> Unit,
+    onModels: () -> Unit,
 ) {
     Card(
         Modifier.fillMaxWidth(),
@@ -261,8 +283,9 @@ private fun ProviderCard(
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onEdit, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("Edit") }
+                OutlinedButton(onClick = onModels, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("Models") }
                 if (!provider.isDefault) {
-                    OutlinedButton(onClick = onSetDefault, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("Set default") }
+                    OutlinedButton(onClick = onSetDefault, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp)) { Text("Default") }
                 }
             }
         }

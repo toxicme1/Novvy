@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,50 +44,58 @@ import androidx.compose.ui.unit.dp
 import com.novvy.app.domain.model.EmailSummary
 import com.novvy.app.ui.NovvyViewModel
 import com.novvy.app.ui.components.EmptyState
+import com.novvy.app.ui.components.LoadingSkeletonCards
+import com.novvy.app.ui.components.PullToRefreshColumn
 import com.novvy.app.ui.theme.GradientVioletCyan
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun InboxScreen(vm: NovvyViewModel, onSummarize: () -> Unit) {
     val state by vm.ui.collectAsState()
     val unread = state.inbox.count { it.unread }
+    var refreshing by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
-    LazyColumn(
-        Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-        contentPadding = PaddingValues(vertical = 16.dp),
+    PullToRefreshColumn(
+        modifier = Modifier,
+        isRefreshing = refreshing,
+        onRefresh = {
+            refreshing = true
+            scope.launch { delay(900); refreshing = false }
+        },
     ) {
-        item {
-            Column {
-                Text("Inbox", style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    if (unread > 0) "$unread unread messages" else "You're all caught up",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
+        Column(
+            Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Text("Inbox", style = MaterialTheme.typography.headlineSmall)
+            Text(
+                if (unread > 0) "$unread unread messages" else "You're all caught up",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
-        if (state.inbox.isNotEmpty()) {
-            item { AiSummaryCard(state.inbox) }
-        }
-
-        item {
-            Button(onClick = onSummarize, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
-                Icon(Icons.Filled.AutoAwesome, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Summarize unread with Novvy")
+            if (refreshing) {
+                LoadingSkeletonCards(count = 3)
+            } else {
+                if (state.inbox.isNotEmpty()) {
+                    AiSummaryCard(state.inbox)
+                }
+                Button(onClick = onSummarize, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+                    Icon(Icons.Filled.AutoAwesome, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Summarize unread with Novvy")
+                }
+                if (state.inbox.isEmpty()) {
+                    EmptyState(
+                        title = "No email insights yet",
+                        subtitle = "Connect Gmail to summarize messages and draft replies.",
+                    )
+                } else {
+                    state.inbox.forEach { EmailCard(it) }
+                }
             }
-        }
-
-        if (state.inbox.isEmpty()) {
-            item {
-                EmptyState(
-                    title = "No email insights yet",
-                    subtitle = "Connect Gmail to summarize messages and draft replies.",
-                )
-            }
-        } else {
-            items(state.inbox, key = { it.id }) { email -> EmailCard(email) }
         }
     }
 }
@@ -162,12 +171,7 @@ private fun EmailCard(email: EmailSummary) {
                 if (email.urgent) {
                     Spacer(Modifier.width(4.dp))
                     Surface(shape = RoundedCornerShape(50), color = Color(0xFFEF4444).copy(alpha = 0.12f)) {
-                        Text(
-                            "Urgent",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = Color(0xFFEF4444),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        )
+                        Text("Urgent", style = MaterialTheme.typography.labelMedium, color = Color(0xFFEF4444), modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
                     }
                 }
             }
