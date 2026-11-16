@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Novvy — Download</title>
+<title>Novvy — Download &amp; Install</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
@@ -13,7 +13,7 @@
     color: #e8e8f0; display: flex; align-items: flex-start; justify-content: center; padding: 56px 16px;
   }
   .card {
-    width: 100%; max-width: 620px; background: #17171f; border: 1px solid #262635;
+    width: 100%; max-width: 640px; background: #17171f; border: 1px solid #262635;
     border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,.45);
   }
   .logo { display: flex; align-items: center; gap: 14px; }
@@ -25,13 +25,10 @@
   h1 { margin: 0; font-size: 30px; letter-spacing: -.6px; }
   h1 .dot { color: #7c8cff; }
   .tagline { color: #8a8aa3; margin: 6px 0 0; font-size: 15px; }
-  .meta {
-    display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 26px;
-  }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 26px; }
   .chip {
     font-size: 12.5px; padding: 6px 11px; border-radius: 999px;
-    background: #23232f; color: #b9b9cc; border: 1px solid #2c2c3d;
-    font-family: ui-monospace, monospace;
+    background: #23232f; color: #b9b9cc; border: 1px solid #2c2c3d; font-family: ui-monospace, monospace;
   }
   .download {
     display: block; text-align: center; text-decoration: none;
@@ -41,23 +38,46 @@
   .download:hover { filter: brightness(1.08); }
   .download:active { transform: translateY(1px); }
   .download .small { display: block; font-weight: 600; font-size: 12px; opacity: .7; margin-top: 2px; }
-  .steps { margin: 30px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
-  .steps li { display: flex; gap: 12px; font-size: 14.5px; line-height: 1.5; color: #c9c9d8; }
-  .num {
-    flex: 0 0 24px; height: 24px; border-radius: 8px; background: #23232f; color: #7c8cff;
-    display: grid; place-items: center; font-weight: 700; font-size: 13px;
+  .divider { height: 1px; background: #262635; margin: 28px 0 24px; }
+  h2 { font-size: 18px; margin: 0 0 6px; letter-spacing: -.2px; }
+  .hint { color: #8a8aa3; font-size: 13.5px; margin: 0 0 16px; line-height: 1.5; }
+  .adbver { font-size: 12px; color: #6a6a82; font-family: ui-monospace, monospace; margin-bottom: 14px; }
+  button {
+    font: inherit; font-weight: 700; cursor: pointer; border: none; border-radius: 10px;
+    padding: 12px 16px; transition: filter .15s ease, transform .05s ease;
+  }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .primary { background: #7c8cff; color: #0f0f17; }
+  .primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .ghost { background: #23232f; color: #e8e8f0; }
+  .ghost:hover:not(:disabled) { filter: brightness(1.15); }
+  .wide { width: 100%; }
+  .devices { display: grid; gap: 8px; margin: 14px 0; }
+  .device {
+    display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #2c2c3d;
+    border-radius: 10px; cursor: pointer; background: #1c1c26;
+  }
+  .device:hover { border-color: #7c8cff; }
+  .device input { accent-color: #7c8cff; }
+  .device .name { font-weight: 600; }
+  .device .serial { color: #8a8aa3; font-size: 12px; font-family: ui-monospace, monospace; }
+  #adbStatus { margin-top: 14px; font-size: 13.5px; line-height: 1.5; }
+  .ok { color: #6ee7a8; } .err { color: #ff7a90; } .muted { color: #8a8aa3; }
+  pre {
+    background: #0c0c12; border: 1px solid #262635; border-radius: 10px; padding: 12px;
+    overflow: auto; font-size: 12.5px; white-space: pre-wrap; word-break: break-word; margin-top: 12px;
   }
   code {
     background: #0c0c12; border: 1px solid #262635; padding: 1px 6px; border-radius: 6px;
     font-family: ui-monospace, monospace; font-size: 13px; color: #9fe870;
   }
   .note {
-    margin-top: 24px; padding: 14px 16px; border-radius: 12px;
-    background: #1a1a24; border: 1px solid #2c2c3d; font-size: 13.5px; color: #9a9ab0; line-height: 1.55;
+    margin-top: 22px; padding: 13px 15px; border-radius: 12px;
+    background: #1a1a24; border: 1px solid #2c2c3d; font-size: 13px; color: #9a9ab0; line-height: 1.55;
   }
   .foot { margin-top: 24px; font-size: 12.5px; color: #6a6a82; text-align: center; }
-  .foot code { font-size: 12px; }
-  a.plain { color: #7c8cff; }
+  .foot a { color: #7c8cff; }
 </style>
 </head>
 <body>
@@ -82,20 +102,156 @@
       <span class="small">novvy.apk · 799,620 bytes</span>
     </a>
 
-    <ul class="steps">
-      <li><span class="num">1</span><span>Tap <b>Download Novvy APK</b> above to save <code>novvy.apk</code> to your phone.</span></li>
-      <li><span class="num">2</span><span>Open the file and allow <b>install from this source</b> when Android asks.</span></li>
-      <li><span class="num">3</span><span>Launch <b>Novvy</b> and point it at your Novvy backend URL (e.g. <code>http://192.168.1.20:8000</code>).</span></li>
-    </ul>
+    <div class="divider"></div>
+
+    <h2>Install over USB (no terminal)</h2>
+    <p class="hint">
+      Connect your phone via USB with <b>USB debugging</b> enabled, then check for devices and pick one.
+      Works in desktop <b>Chrome</b> or <b>Edge</b> over HTTPS.
+    </p>
+    <div class="adbver" id="adbVer">Novvy WebADB</div>
+
+    <button id="checkBtn" class="ghost wide">Check for phones</button>
+
+    <div id="devicePanel" style="display:none">
+      <div class="devices" id="devices"></div>
+      <button id="installBtn" class="primary wide">Install Novvy to selected phone</button>
+    </div>
+
+    <div id="adbStatus" class="muted">Ready.</div>
+    <pre id="adbLog" style="display:none"></pre>
 
     <div class="note">
-      Prefer ADB? With USB debugging enabled and your phone connected:
-      <br /><code>adb install -r novvy.apk</code>
+      Don't see your phone? Enable <b>Developer options → USB debugging</b>, accept the
+      "Allow USB debugging?" prompt on the phone, and use a data-capable USB cable.
+      Prefer the classic way? <code>adb install -r novvy.apk</code> on your computer.
     </div>
 
     <div class="foot">
-      Source &amp; backend: <a class="plain" href="https://github.com/toxicme1/Novvy">github.com/toxicme1/Novvy</a>
+      Source &amp; backend: <a href="https://github.com/toxicme1/Novvy">github.com/toxicme1/Novvy</a>
     </div>
   </div>
+
+<script src="adb.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var checkBtn = $("checkBtn");
+  var installBtn = $("installBtn");
+  var devicePanel = $("devicePanel");
+  var devicesEl = $("devices");
+  var statusEl = $("adbStatus");
+  var logEl = $("adbLog");
+
+  function setStatus(msg, kind) {
+    statusEl.textContent = msg;
+    statusEl.className = kind || "muted";
+  }
+  function showLog(t) {
+    logEl.style.display = t ? "block" : "none";
+    logEl.textContent = t || "";
+  }
+
+  if (!window.NovvyAdb) {
+    setStatus("WebADB failed to load.", "err");
+    checkBtn.disabled = true;
+    return;
+  }
+
+  var adb = window.NovvyAdb;
+  $("adbVer").textContent = adb.adbVersion();
+
+  if (!adb.supported()) {
+    checkBtn.disabled = true;
+    setStatus("WebUSB needs desktop Chrome or Edge over HTTPS. Open this page in Chrome/Edge on a computer.", "err");
+    return;
+  }
+
+  function renderDevices(list) {
+    devicesEl.innerHTML = "";
+    if (!list.length) {
+      devicePanel.style.display = "none";
+      setStatus("No authorized phones. Click 'Check for phones' and pick your device in the USB prompt.", "muted");
+      return;
+    }
+    list.forEach(function (d, i) {
+      var label = document.createElement("label");
+      label.className = "device";
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "device";
+      radio.value = d.serial;
+      if (i === 0) radio.checked = true;
+      var info = document.createElement("span");
+      var name = document.createElement("span");
+      name.className = "name";
+      name.textContent = d.name || d.serial;
+      var serial = document.createElement("span");
+      serial.className = "serial";
+      serial.textContent = d.serial;
+      info.appendChild(name);
+      info.appendChild(document.createElement("br"));
+      info.appendChild(serial);
+      label.appendChild(radio);
+      label.appendChild(info);
+      devicesEl.appendChild(label);
+    });
+    devicePanel.style.display = "block";
+    setStatus("Found " + list.length + " phone(s). Pick one and install.", "ok");
+  }
+
+  checkBtn.addEventListener("click", async function () {
+    checkBtn.disabled = true;
+    setStatus("Checking for phones (adb devices)…", "muted");
+    showLog("");
+    try {
+      var list = await adb.listDevices();
+      if (!list.length) {
+        // No previously-authorized device: prompt the browser USB chooser.
+        setStatus("No authorized phones yet — pick your phone in the USB prompt…", "muted");
+        var picked = await adb.requestDevice();
+        if (picked) {
+          list = await adb.listDevices();
+          if (!list.some(function (d) { return d.serial === picked.serial; })) {
+            list.push(picked);
+          }
+        }
+      }
+      renderDevices(list);
+    } catch (e) {
+      setStatus("Could not list devices: " + (e && e.message ? e.message : e), "err");
+    } finally {
+      checkBtn.disabled = false;
+    }
+  });
+
+  installBtn.addEventListener("click", async function () {
+    var chosen = document.querySelector('input[name="device"]:checked');
+    if (!chosen) { setStatus("Select a phone first.", "err"); return; }
+    var serial = chosen.value;
+    installBtn.disabled = true;
+    checkBtn.disabled = true;
+    setStatus("Installing on " + serial + " …", "muted");
+    showLog("");
+    try {
+      var result = await adb.installApk(serial, "novvy.apk", function (msg) {
+        setStatus(msg, "muted");
+      });
+      if (result.ok) {
+        setStatus("Success — Novvy installed on " + serial + ".", "ok");
+      } else {
+        setStatus("Install failed. See details below.", "err");
+      }
+      showLog(result.output || "");
+    } catch (e) {
+      setStatus("Install error: " + (e && e.message ? e.message : e), "err");
+      showLog("");
+    } finally {
+      installBtn.disabled = false;
+      checkBtn.disabled = false;
+    }
+  });
+})();
+</script>
 </body>
 </html>

@@ -81,17 +81,22 @@ curl -X POST http://localhost:8000/api/run \
 
 ## Web interface (download + install to a device)
 
-Open the backend root URL (`http://localhost:8000/`) for a web UI with:
+The `web/` folder is a static site (deployed to **https://novvy.vercel.app**) with:
 
-- **Download & install to my phone** — runs `adb devices` on the machine running
-  Novvy, lists connected devices, and installs `dist/novvy.apk` onto the one you pick.
-- **Just download the APK file** — downloads `novvy.apk` directly.
+- **Download Novvy APK** — downloads `novvy.apk` directly.
+- **Install over USB (no terminal)** — browser-only ADB via WebUSB. It lists connected
+  phones (like `adb devices`), you pick one, and it pushes + `pm install`s the APK.
 
-> ADB installs only work for devices plugged into the machine running the
-> backend (USB debugging enabled). A cloud-hosted backend sees no devices, so
-> run it locally to use the install button.
+> The install-over-USB feature uses WebUSB (yume-chan/adb compiled to WebAssembly) and
+> requires **desktop Chrome or Edge over HTTPS** with **USB debugging** enabled on the
+> phone. A web page cannot run a local `adb` binary, so this is the browser-native path.
+> Rebuild the bundle with `web/build-adb.sh` (source in `web/src/app.js`).
 
-Endpoints: `GET /download`, `GET /api/adb/devices`, `POST /api/adb/install`.
+You can also run the same UI locally from the backend root URL (`http://localhost:8000/`)
+when the phone is plugged into that machine — then the `/api/adb/*` endpoints shell out to
+a real `adb` binary.
+
+Endpoints (backend): `GET /download`, `GET /api/adb/devices`, `POST /api/adb/install`.
 
 ## Android app
 
