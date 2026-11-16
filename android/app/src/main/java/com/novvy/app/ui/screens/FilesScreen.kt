@@ -50,7 +50,12 @@ fun FilesScreen(vm: NovvyViewModel) {
         }
 
         if (state.files.isEmpty()) {
-            item { EmptyState("No files yet", "Create a document and save it to Drive.", Icons.Filled.Folder) }
+            item {
+                EmptyState(
+                    title = "No documents yet",
+                    subtitle = "Novvy can create and save DOCX, PDF and other files to Drive.",
+                )
+            }
         } else {
             items(state.files, key = { it.name + it.folder }) { file -> FileCard(file) }
         }

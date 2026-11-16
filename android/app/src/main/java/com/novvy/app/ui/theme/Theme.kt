@@ -76,6 +76,7 @@ fun NovvyTheme(
     MaterialTheme(
         colorScheme = colors,
         typography = NovvyTypography,
+        shapes = NovvyShapes,
         content = content,
     )
 }

@@ -181,3 +181,50 @@ Reduced-motion is not yet explicitly handled; consider honouring
 | Navigation routes | `ui/NovvyApp.kt` |
 
 See `docs/SCREENS.md` for a per-screen layout breakdown.
+---
+
+## 8. Premium redesign (v1.1)
+
+The UI was upgraded to a premium, expressive Material 3 look. All features are
+unchanged — only the visual layer changed.
+
+### New colour tokens (`Color.kt`)
+- Dark elevated surface: `#1F1F29` (cards sit above `#0F0F17` background).
+- Gradients: violet→cyan, violet→coral, cyan→blue, green→cyan, red→violet,
+  blue→cyan, violet→blue.
+- Glows: `VioletGlow #8B7BFF`, `CyanGlow #67E8F9`, `AmberGlow #FFC46B`,
+  `GreenGlow #5BE58A`.
+
+### New shape & motion systems
+- `Shape.kt` — `NovvyShapes` (10 / 14 / 18 / 24 / 28dp) + `Radii`.
+- `Motion.kt` — `NovvyMotion` (Fast 150 / Normal 260 / Slow 420ms, standard &
+  emphasized easing, spring).
+
+### New / upgraded components
+| Component | What it does |
+|-----------|--------------|
+| `NovvyOrb` | Animated gradient AI orb — idle (breathing), thinking (rotating), success (green check), error (red) |
+| `NovvyPromptCard` | 28dp card, violet→cyan gradient border, 56dp gradient send button with glow, pulsing mic, attachment chip, Gmail/Drive status dots |
+| `QuickActionCard` | Gradient icon + title + subtitle (replaces plain chips) |
+| `AgentStatusCard` | Per-agent gradient icon, soft glow when running, gradient progress bar with %, step counter, tap-to-expand details, approval strip |
+| `StepIndicator` | Plan progress dots connected by gradient lines |
+| `GradientProgressBar` / `GradientIcon` | Reusable violet→cyan progress + gradient icon container |
+| `CoordinatorMessage` | Chat bubble with the Novvy orb avatar |
+| `EmptyState` | Orb illustration + title + subtitle + optional action |
+| `ThemeCard` | Settings appearance cards with a mini theme preview + check |
+
+### Per-agent gradients
+| Agent | Gradient |
+|-------|----------|
+| Coordinator | violet→coral |
+| Planner | violet→blue |
+| Research | violet→cyan |
+| Analysis / Budget / Document | cyan→blue |
+| Hotel / Drive | blue→cyan |
+| Itinerary / Reviewer / Tasks | green→cyan |
+| Writer | violet→coral |
+| Gmail | red→violet |
+
+### Dark mode
+Background `#0F0F17`, surface `#17171F`, elevated `#1F1F29`, primary `#B9A8FF`,
+text `#E8E8F0` / `#A0A0B8`. Glows are used at low alpha so cards stay readable.

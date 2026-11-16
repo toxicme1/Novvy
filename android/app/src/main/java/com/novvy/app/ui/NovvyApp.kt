@@ -81,6 +81,7 @@ fun NovvyApp(vm: NovvyViewModel) {
                     HomeScreen(
                         vm = vm,
                         onOpenTask = { navController.navigate("task") },
+                        onOpenSettings = { navController.navigate("settings") },
                     )
                 }
                 composable("tasks") {

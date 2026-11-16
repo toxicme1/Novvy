@@ -70,7 +70,12 @@ fun InboxScreen(vm: NovvyViewModel, onSummarize: () -> Unit) {
         }
 
         if (state.inbox.isEmpty()) {
-            item { EmptyState("No emails", "Connect Gmail to read your inbox.", Icons.Filled.Email) }
+            item {
+                EmptyState(
+                    title = "No email insights yet",
+                    subtitle = "Connect Gmail to summarize messages and draft replies.",
+                )
+            }
         } else {
             items(state.inbox, key = { it.id }) { email -> EmailCard(email) }
         }

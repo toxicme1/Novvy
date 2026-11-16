@@ -3,6 +3,7 @@ package com.novvy.app.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.ui.draw.clip
+import com.novvy.app.ui.theme.DarkBg
+import com.novvy.app.ui.theme.DarkSurface
+import com.novvy.app.ui.theme.LightBg
+import com.novvy.app.ui.theme.LightSurface
+import com.novvy.app.ui.theme.Violet
 import com.novvy.app.data.ThemeMode
 import com.novvy.app.domain.model.ProviderConfig
 import com.novvy.app.google.GoogleCredentials
@@ -78,15 +88,10 @@ fun SettingsScreen(vm: NovvyViewModel) {
 
         // Appearance
         SectionTitle("Appearance")
-        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
-            Row(
-                Modifier.padding(14.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                ThemeChip("System", state.settings.themeMode == ThemeMode.SYSTEM, Modifier.weight(1f)) { vm.setTheme(ThemeMode.SYSTEM) }
-                ThemeChip("Light", state.settings.themeMode == ThemeMode.LIGHT, Modifier.weight(1f)) { vm.setTheme(ThemeMode.LIGHT) }
-                ThemeChip("Dark", state.settings.themeMode == ThemeMode.DARK, Modifier.weight(1f)) { vm.setTheme(ThemeMode.DARK) }
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ThemeCard("System", state.settings.themeMode == ThemeMode.SYSTEM, isSystemInDarkTheme(), Modifier.weight(1f)) { vm.setTheme(ThemeMode.SYSTEM) }
+            ThemeCard("Light", state.settings.themeMode == ThemeMode.LIGHT, false, Modifier.weight(1f)) { vm.setTheme(ThemeMode.LIGHT) }
+            ThemeCard("Dark", state.settings.themeMode == ThemeMode.DARK, true, Modifier.weight(1f)) { vm.setTheme(ThemeMode.DARK) }
         }
 
         // Providers
@@ -153,15 +158,48 @@ fun SettingsScreen(vm: NovvyViewModel) {
 }
 
 @Composable
-private fun ThemeChip(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Surface(
+private fun ThemeCard(
+    label: String,
+    selected: Boolean,
+    previewDark: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Card(
         onClick = onClick,
-        shape = RoundedCornerShape(50),
-        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+        ),
     ) {
-        Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(vertical = 8.dp))
+        Column(Modifier.padding(10.dp)) {
+            Box(
+                Modifier.fillMaxWidth().height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (previewDark) DarkBg else LightBg)
+            ) {
+                Box(
+                    Modifier.align(Alignment.TopStart).padding(8.dp)
+                        .size(40.dp, 12.dp).clip(RoundedCornerShape(6.dp))
+                        .background(if (previewDark) DarkSurface else LightSurface)
+                )
+                Box(
+                    Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                        .size(14.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(if (previewDark) androidx.compose.ui.graphics.Color(0xFFB9A8FF) else Violet)
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                if (selected) {
+                    Icon(Icons.Filled.Check, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                }
+            }
+        }
     }
 }
 
